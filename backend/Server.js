@@ -30,12 +30,12 @@ app.post("/createUser", (req, res) => {
         });
 });
 
-app.post("/api/user/login", (req, res) => {
-    const { email, password } = req.body;
+app.post("/user/login", (req, res) => {
+    const {email, password} = req.body;
 
     // Make a POST request to the FastAPI backend for login with 'no-cors' mode
     axiosNoCors
-        .post("https://clz_system.horapusa.me/docs#/api/user/login", { email, password })
+        .post("https://clz_system.horapusa.me/user/login", {email, password})
         .then((response) => {
             console.log("Login successful:", response.data);
             // Perform any necessary actions after successful login
@@ -44,8 +44,38 @@ app.post("/api/user/login", (req, res) => {
         .catch((error) => {
             console.error("Error logging in:", error);
             // Handle error condition
-            res.status(500).json({ error: "Failed to log in" });
+            res.status(500).json({error: "Failed to log in"});
         });
+});
+app.get("/getAllUsers", async (req, res) => {
+    try {
+        const response = await axios.get("https://clz_system.horapusa.me/getAllUsers"); // Replace with your FastAPI backend URL
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({error: "Failed to fetch data"});
+    }
+});
+
+app.get("/getUsers/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `https://clz_system.horapusa.me/getUsers/${req.params.id}`
+        ); // Replace with your FastAPI backend URL
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({error: "Failed to fetch data"});
+    }
+});
+
+app.delete("/deleteUser/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `https://clz_system.horapusa.me/deleteUser/${req.params.id}`
+        ); // Replace with your FastAPI backend URL
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({error: "Failed to delete user"});
+    }
 });
 
 app.listen(port, () => {

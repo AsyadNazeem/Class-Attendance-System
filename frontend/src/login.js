@@ -32,7 +32,7 @@ export default function Login() {
         const queryParams = new URLSearchParams(formData).toString();
 
         // Send a POST request to your Express server with query parameters
-        fetch(`https://clz_system.horapusa.me/api/user/login?${queryParams}`, {
+        fetch(`https://clz_system.horapusa.me/user/login?${queryParams}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
