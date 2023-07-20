@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const {response} = require("express");
 
 const app = express();
 const port = 8700;
@@ -9,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 // Create an Axios instance with 'no-cors' mode
-const axiosNoCors = axios.create({ mode: "no-cors" });
+const axiosNoCors = axios.create({mode: "no-cors"});
 
 app.post("/createUser", (req, res) => {
     const userData = req.body;
@@ -26,7 +27,7 @@ app.post("/createUser", (req, res) => {
         .catch((error) => {
             console.error("Error creating user:", error);
             // Handle error condition
-            res.status(500).json({ error: "Failed to create user" });
+            res.status(500).json({error: "Failed to create user"});
         });
 });
 
@@ -47,6 +48,7 @@ app.post("/user/login", (req, res) => {
             res.status(500).json({error: "Failed to log in"});
         });
 });
+
 app.get("/getAllUsers", async (req, res) => {
     try {
         const response = await axios.get("https://clz_system.horapusa.me/getAllUsers"); // Replace with your FastAPI backend URL
@@ -77,6 +79,23 @@ app.delete("/deleteUser/:id", async (req, res) => {
         res.status(500).json({error: "Failed to delete user"});
     }
 });
+
+app.post("/updateUser", (req, res) => {
+    const updateData = req.body;
+
+    axiosNoCors
+        .post('https://clz_system.horapusa.me/updateUser', updateData)
+        .then((response) => {
+            console.log("User Updated:", response.data);
+
+            res.status(200).json(response.data);
+        })
+        .catch((error) => {
+            console.error("Error Updating user:", error);
+
+            res.status(500).json({error: "Failed to Update user"})
+        })
+})
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:8700`);
