@@ -4,46 +4,55 @@ import axios from "axios";
 export default function Users() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [deleteQuery, setDeleteQuery] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [email, setEmail] = useState("");
 
     useEffect(() => {
-        axios
-            .get("https://clz_system.horapusa.me/getAllUsers")
-            .then((response) => {
+        async function fetchUsers() {
+            try {
+                const response = await axios.get('http://localhost:3005/getAllUsers');
                 setUsers(response.data);
-            })
-            .catch((err) => console.log(err));
+                setLoading(false);
+            } catch (error) {
+                setError("Failed to fetch data");
+                setLoading(false);
+            }
+        }
+
+        fetchUsers();
     }, []);
 
-    useEffect(() => {
-        axios
-            .get(`https://clz_system.horapusa.me/getUser?email=${searchQuery}`)
-            .then((response) => {
-                setSearch(response.data);
-            })
-            .catch((err) => console.log(err));
-    }, [searchQuery]);
 
-    function searchItems() {
-        axios
-            .get(`https://clz_system.horapusa.me/getUser?email=${searchQuery}`)
-            .then((response) => {
-                setSearch(response.data);
-            })
-            .catch((err) => console.log(err));
+    const handleSearchClick = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3005/user/${email}`);
+            setSearch([response.data]);
+            console.log(response.data)
+            setLoading(false);
+        } catch (error) {
+            setError("Failed to fetch data");
+            setLoading(false);
+        }
     }
 
-    function deleteItem() {
-        axios
-            .delete(`https://clz_system.horapusa.me/deleteUser?email=${deleteQuery}`)
-            .then((response) => {
-                // Update the users state after successful deletion
-                setUsers((prevUsers) =>
-                    prevUsers.filter((user) => user.email !== deleteQuery)
-                );
-            })
-            .catch((err) => console.log(err));
+    const handleDelete = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3005/deleteUser/${email}`);
+            console.log(response.data)
+            setLoading(false);
+        } catch (error) {
+            setError("Failed to fetch data");
+            setLoading(false);
+        }
+    }
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
     }
 
     return (
@@ -52,16 +61,18 @@ export default function Users() {
             <div className="user-container">
                 <div className="search-user">
                     <input
-                        type="text"
+                        id="email"
+                        name="email"
+                        type="email"
                         placeholder="email address"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
+                    <button className="search-user-btn" onClick={handleSearchClick}>
+                        Search
+                    </button>
                     <div>
-                        <button className="search-user-btn" onClick={searchItems}>
-                            Search
-                        </button>
-                        <button className="delete-user-btn" onClick={deleteItem}>
+                        <button className="delete-user-btn" onClick={handleDelete}>
                             Delete
                         </button>
                     </div>
@@ -78,24 +89,25 @@ export default function Users() {
                     </tr>
                     </thead>
                     <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.firstName}</td>
-                            <td>{user.lastName}</td>
-                            <td>{user.phoneNumber}</td>
-                            <td>{user.email}</td>
-                            <td>{user.userType}</td>
-                        </tr>
-                    ))}
-                    {search.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.firstName}</td>
-                            <td>{user.lastName}</td>
-                            <td>{user.phoneNumber}</td>
-                            <td>{user.email}</td>
-                            <td>{user.userType}</td>
-                        </tr>
-                    ))}
+                    {search.length > 0 ?
+                        search.map((search) => (
+                            <tr key={search.id}>
+                                <td>{search.firstName}</td>
+                                <td>{search.lastName}</td>
+                                <td>{search.phoneNumber}</td>
+                                <td>{search.email}</td>
+                                <td>{search.userType}</td>
+                            </tr>
+                        ))
+                        : users.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.firstName}</td>
+                                <td>{user.lastName}</td>
+                                <td>{user.phoneNumber}</td>
+                                <td>{user.email}</td>
+                                <td>{user.userType}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
